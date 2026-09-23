@@ -6,6 +6,7 @@ const { project, previous, next } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const toProject = (slug: string) => `${base}/projects/${slug}`;
 const projectsHref = `${base}/projects`;
+const projectVideos = project.videos?.length ? project.videos : [{ title: project.title, url: project.videoUrl }];
 ---
 <article class="project-detail">
   <a class="back-link" href={projectsHref}>← Todos los proyectos</a>
@@ -14,7 +15,13 @@ const projectsHref = `${base}/projects`;
   </header>
 
   <section class="project-detail__body" aria-label={`Vídeo de ${project.title}`}>
-    <div class="project-detail__media"><YouTubeEmbed {...project} /></div>
+    <div class="project-detail__media">
+      {projectVideos.map((video) => (
+        <div class="project-detail__video">
+          <YouTubeEmbed image={project.image} imageAlt={project.imageAlt} title={video.title} videoUrl={video.url} />
+        </div>
+      ))}
+    </div>
 
     {project.description && (
       <div class="project-detail__intro">

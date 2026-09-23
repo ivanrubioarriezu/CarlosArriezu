@@ -5,6 +5,6 @@ import ProjectsSection from '../components/ProjectsSection.astro';
 import { siteContent } from '../content/site';
 ---
 <PageLayout title={`${siteContent.sections.projects.title} — ${siteContent.meta.title}`} description={siteContent.meta.description} artistName={siteContent.artist.name} navigation={siteContent.navigation} activeHref="/projects">
-  <PageIntro variant="projects" eyebrow={siteContent.sections.projects.eyebrow} title={siteContent.sections.projects.title} description={siteContent.sections.projects.description} image={siteContent.artist.portraitImage} imageAlt={siteContent.artist.portraitImageAlt} />
+  <PageIntro variant="projects" eyebrow={siteContent.sections.projects.eyebrow} title={siteContent.sections.projects.title} description={siteContent.sections.projects.description} image={`${import.meta.env.BASE_URL}media/images/carlos2.png`} imageAlt="Retrato del artista" />
   <ProjectsSection projects={siteContent.projects} section={siteContent.sections.projects} />
 </PageLayout>

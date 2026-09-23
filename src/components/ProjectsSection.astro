@@ -5,6 +5,7 @@ interface Props { projects: Project[]; }
 const { projects } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const projectHref = (slug: string) => `${base}/projects/${slug}`;
+const projectVideos = (project: Project) => project.videos?.length ? project.videos : [{ title: project.title, url: project.videoUrl }];
 ---
 <section class="projects-portfolio section-shell" aria-label="Selección de proyectos">
   <div class="project-index">
@@ -16,7 +17,9 @@ const projectHref = (slug: string) => `${base}/projects/${slug}`;
           <a class="project-feature__link" href={projectHref(project.slug)}>Descubrir <span aria-hidden="true">→</span></a>
         </div>
         <div class="project-feature__video">
-          <YouTubeEmbed {...project} />
+          <div class:list={['project-feature__video-list', { 'project-feature__video-list--single': projectVideos(project).length === 1 }]}>
+            {projectVideos(project).map((video) => <YouTubeEmbed image={project.image} imageAlt={project.imageAlt} title={video.title} videoUrl={video.url} />)}
+          </div>
         </div>
       </article>
     ))}

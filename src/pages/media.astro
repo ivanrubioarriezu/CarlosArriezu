@@ -1,10 +1,8 @@
 ---
 import MediaSection from '../components/MediaSection.astro';
-import PageIntro from '../components/PageIntro.astro';
 import PageLayout from '../components/PageLayout.astro';
 import { siteContent } from '../content/site';
 ---
 <PageLayout title={`${siteContent.sections.media.title} — ${siteContent.meta.title}`} description={siteContent.meta.description} artistName={siteContent.artist.name} navigation={siteContent.navigation} activeHref="/media">
-  <PageIntro variant="media" eyebrow={siteContent.sections.media.eyebrow} title={siteContent.sections.media.title} image={siteContent.media.gallery[0].src} imageAlt={siteContent.media.gallery[0].alt} />
   <MediaSection media={siteContent.media} section={siteContent.sections.media} />
 </PageLayout>

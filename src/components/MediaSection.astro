@@ -5,39 +5,57 @@ interface Props { media: SiteContent['media']; section: SiteContent['sections'][
 const { media, section } = Astro.props;
 ---
 <section class="media section-shell" id="media" aria-labelledby="media-title">
+  <div class="media__cursor-glow" aria-hidden="true"></div>
   <SectionHeading id="media-title" eyebrow={section.eyebrow} title={section.title} />
 
-  <div class="media-shell">
-    <div class="media-panel media-panel--documents reveal">
-      <div class="panel-header">
-        <span class="panel-tag">Archive</span>
-        <span class="panel-id">01 / resources</span>
-      </div>
-      <div class="media-resources">
-        {media.documents.map((document) => document.url ? <a class="resource-card" href={document.url} target="_blank" rel="noreferrer"><span>{document.label}</span><span aria-hidden="true">↗</span><small>{document.description}</small></a> : <div class="resource-card is-pending"><span>{document.label}</span><span aria-hidden="true">—</span><small>{document.description}</small></div>)}
-      </div>
-    </div>
+  <div class="media-documents" aria-label="Documentos de prensa">
+    {media.documents.map((document) => (
+      <article class="resource-card reveal">
+        <span class:list={['resource-card__icon', { 'resource-card__icon--press': document.label === 'Press kit' }]} aria-hidden="true"></span>
+        <div class="resource-card__body">
+          <h3>{document.label}</h3>
+          <p>{document.description}</p>
+        </div>
+        <div class="resource-card__actions">
+          {document.url ? <button class="resource-card__view" type="button" data-pdf={document.url}>View PDF</button> : <span class="resource-card__pending">Pending</span>}
+          {document.url && <a class="resource-card__download" href={document.url} download>Download</a>}
+        </div>
+      </article>
+    ))}
+  </div>
 
-    <div class="media-panel media-panel--images reveal">
-      <div class="panel-header">
-        <span class="panel-tag">Images</span>
-        <span class="panel-id">02 / gallery</span>
-      </div>
-      <div class="gallery" aria-label="Galería de imágenes">
-        {media.gallery.map((image, index) => (
-          <button class="gallery-item reveal" type="button" data-index={index} aria-label={`Abrir imagen ${index + 1}`}>
-            <img src={image.src} alt={image.alt} loading="lazy" />
-          </button>
-        ))}
-      </div>
+  <div class="media-gallery reveal">
+    <div class="media-gallery__header">
+      <span class="panel-tag">Images</span>
+      <span class="panel-id">Gallery / {media.gallery.length} files</span>
     </div>
+    <div class="gallery" aria-label="Galería de imágenes">
+      {media.gallery.map((image, index) => (
+        <button class="gallery-item reveal" type="button" data-index={index} aria-label={`Abrir imagen ${index + 1}`}>
+          <img src={image.src} alt={image.alt} loading="lazy" />
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="media-pdf-viewer" aria-hidden="true">
+    <button class="media-pdf-viewer__close" type="button" aria-label="Cerrar PDF">×</button>
+    <div class="media-pdf-viewer__frame"><iframe title="Vista previa del documento PDF" src=""></iframe></div>
   </div>
 
   <div class="media-lightbox" aria-hidden="true">
     <button class="media-lightbox__close" type="button" aria-label="Cerrar vista previa">×</button>
     <button class="media-lightbox__nav media-lightbox__nav--prev" type="button" aria-label="Anterior">←</button>
-    <img class="media-lightbox__image" src="" alt="" />
+    <div class="media-lightbox__stage">
+      <img class="media-lightbox__image" src="" alt="" />
+      <span class="media-lightbox__counter">01 / 14</span>
+    </div>
     <button class="media-lightbox__nav media-lightbox__nav--next" type="button" aria-label="Siguiente">→</button>
+    <div class="media-lightbox__tools">
+      <button class="media-lightbox__zoom media-lightbox__zoom--out" type="button" aria-label="Alejar">−</button>
+      <button class="media-lightbox__zoom media-lightbox__zoom--in" type="button" aria-label="Acercar">+</button>
+    </div>
+    <div class="media-lightbox__thumbs" aria-label="Miniaturas de la galería"></div>
   </div>
 </section>
 
@@ -49,6 +67,14 @@ const { media, section } = Astro.props;
     const closeButton = document.querySelector('.media-lightbox__close');
     const prevButton = document.querySelector('.media-lightbox__nav--prev');
     const nextButton = document.querySelector('.media-lightbox__nav--next');
+    const counter = lightbox?.querySelector('.media-lightbox__counter');
+    const thumbs = lightbox?.querySelector('.media-lightbox__thumbs');
+    const zoomIn = lightbox?.querySelector('.media-lightbox__zoom--in');
+    const zoomOut = lightbox?.querySelector('.media-lightbox__zoom--out');
+    const pdfViewer = document.querySelector('.media-pdf-viewer');
+    const pdfFrame = pdfViewer?.querySelector('iframe');
+    const pdfClose = pdfViewer?.querySelector('.media-pdf-viewer__close');
+    const pdfButtons = [...document.querySelectorAll('[data-pdf]')];
 
     if (!lightbox || !image || !closeButton || !prevButton || !nextButton || !items.length) return;
 
@@ -58,17 +84,35 @@ const { media, section } = Astro.props;
     }));
 
     let index = 0;
+    let scale = 1;
+
+    images.forEach((current, idx) => {
+      const thumbnail = document.createElement('button');
+      thumbnail.type = 'button';
+      thumbnail.className = 'media-lightbox__thumb';
+      thumbnail.setAttribute('aria-label', `Ver imagen ${idx + 1}`);
+      thumbnail.innerHTML = `<img src="${current.src}" alt="">`;
+      thumbnail.addEventListener('click', () => {
+        index = idx;
+        update();
+      });
+      thumbs?.appendChild(thumbnail);
+    });
 
     const update = () => {
       const current = images[index];
       if (!current) return;
       image.src = current.src;
       image.alt = current.alt;
+      image.style.transform = `scale(${scale})`;
+      if (counter) counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(images.length).padStart(2, '0')}`;
+      thumbs?.querySelectorAll('.media-lightbox__thumb').forEach((thumb, thumbIndex) => thumb.classList.toggle('is-active', thumbIndex === index));
     };
 
     items.forEach((item, idx) => {
       item.addEventListener('click', () => {
         index = idx;
+        scale = 1;
         update();
         lightbox.classList.add('is-open');
         lightbox.setAttribute('aria-hidden', 'false');
@@ -87,8 +131,11 @@ const { media, section } = Astro.props;
     });
     nextButton.addEventListener('click', () => {
       index = (index + 1) % images.length;
+      scale = 1;
       update();
     });
+    zoomIn?.addEventListener('click', () => { scale = Math.min(scale + .2, 2.4); update(); });
+    zoomOut?.addEventListener('click', () => { scale = Math.max(scale - .2, 1); update(); });
 
     lightbox.addEventListener('click', (event) => {
       if (event.target === lightbox) closeLightbox();
@@ -99,12 +146,40 @@ const { media, section } = Astro.props;
       if (event.key === 'Escape') closeLightbox();
       if (event.key === 'ArrowLeft') {
         index = (index - 1 + images.length) % images.length;
+        scale = 1;
         update();
       }
       if (event.key === 'ArrowRight') {
         index = (index + 1) % images.length;
+        scale = 1;
         update();
       }
+    });
+
+    pdfButtons.forEach((button) => button.addEventListener('click', () => {
+      if (!pdfViewer || !pdfFrame) return;
+      pdfFrame.src = `${button.dataset.pdf}#view=FitH`;
+      pdfViewer.classList.add('is-open');
+      pdfViewer.setAttribute('aria-hidden', 'false');
+    }));
+
+    const closePdf = () => {
+      if (!pdfViewer || !pdfFrame) return;
+      pdfViewer.classList.remove('is-open');
+      pdfViewer.setAttribute('aria-hidden', 'true');
+      pdfFrame.src = '';
+    };
+    pdfClose?.addEventListener('click', closePdf);
+    pdfViewer?.addEventListener('click', (event) => { if (event.target === pdfViewer) closePdf(); });
+    window.addEventListener('keydown', (event) => { if (event.key === 'Escape') closePdf(); });
+
+    const mediaSection = document.querySelector('.media');
+    const cursorGlow = mediaSection?.querySelector('.media__cursor-glow');
+    mediaSection?.addEventListener('pointermove', (event) => {
+      if (!cursorGlow) return;
+      const bounds = mediaSection.getBoundingClientRect();
+      cursorGlow.style.setProperty('--glow-x', `${event.clientX - bounds.left}px`);
+      cursorGlow.style.setProperty('--glow-y', `${event.clientY - bounds.top}px`);
     });
   })();
 </script>
