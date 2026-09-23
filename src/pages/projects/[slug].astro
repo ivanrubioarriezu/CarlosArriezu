@@ -1,0 +1,23 @@
+---
+import type { GetStaticPaths } from 'astro';
+import PageLayout from '../../components/PageLayout.astro';
+import ProjectDetail from '../../components/ProjectDetail.astro';
+import { siteContent, type Project } from '../../content/site';
+
+export const getStaticPaths: GetStaticPaths = () =>
+  siteContent.projects.map((project, index, projects) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      index,
+      previous: projects[index - 1],
+      next: projects[index + 1],
+    },
+  }));
+
+interface Props { project: Project; previous?: Project; next?: Project; }
+const { project, previous, next } = Astro.props;
+---
+<PageLayout title={`${project.title} — ${siteContent.meta.title}`} description={project.description} artistName={siteContent.artist.name} navigation={siteContent.navigation} activeHref="/projects">
+  <ProjectDetail project={project} previous={previous} next={next} />
+</PageLayout>

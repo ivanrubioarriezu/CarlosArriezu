@@ -1,0 +1,18 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  variant: 'bio' | 'projects' | 'media' | 'contact';
+}
+const { title, description, image, imageAlt, variant } = Astro.props;
+---
+<section class:list={['page-intro', `page-intro--${variant}`]}>
+  <div class="page-intro__copy">
+    <h1>{title}</h1>
+    {description && <p class="page-intro__description">{description}</p>}
+  </div>
+  {image && <figure class="page-intro__image reveal"><img src={image} alt={imageAlt ?? ''} /></figure>}
+</section>

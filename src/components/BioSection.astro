@@ -1,0 +1,13 @@
+---
+import type { ArtistProfile, SiteContent } from '../content/site';
+import SectionHeading from './SectionHeading.astro';
+interface Props { artist: ArtistProfile; section: SiteContent['sections']['bio']; }
+const { artist, section } = Astro.props;
+---
+<section class="bio section-shell" id="bio" aria-labelledby="bio-title">
+  <div class="bio__backdrop" aria-hidden="true"></div>
+  <SectionHeading id="bio-title" eyebrow={section.eyebrow} title={section.title} />
+  <div class="bio-grid"><figure class="bio-image reveal"><img src={artist.portraitImage} alt={artist.portraitImageAlt} loading="lazy" /></figure>
+    <div class="bio-copy"><div class="body-copy">{artist.biography.map((paragraph, index) => index === artist.biography.length - 1 ? <p class="bio-quote" set:html={paragraph}></p> : <p set:html={paragraph}></p>)}</div></div>
+  </div>
+</section>

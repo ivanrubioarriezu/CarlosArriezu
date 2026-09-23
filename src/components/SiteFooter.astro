@@ -1,0 +1,7 @@
+---
+interface Props { artistName: string; }
+const { artistName } = Astro.props;
+const year = new Date().getFullYear();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<footer class="site-footer"><p>{artistName}</p><p>© {year}</p><a href={`${base || ''}/`}>Volver al inicio ↑</a></footer>

@@ -1,0 +1,151 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  description: string;
+  title: string;
+}
+
+const { description, title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#1c1d20" />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <canvas id="site-background" aria-hidden="true"></canvas>
+    <slot />
+    <script is:inline>
+      (() => {
+        const canvas = document.getElementById('site-background');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let particles = [];
+        let width = 0;
+        let height = 0;
+        let pointer = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.5 };
+
+        const resize = () => {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          const count = Math.min(180, Math.max(80, Math.floor((width * height) / 18)));
+          particles = Array.from({ length: count }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 2.8 + 1,
+            vx: (Math.random() - 0.5) * 0.38,
+            vy: (Math.random() - 0.5) * 0.38,
+            hue: Math.random() < 0.35 ? 190 : Math.random() < 0.7 ? 250 : 174,
+            alpha: Math.random() * 0.7 + 0.3,
+          }));
+        };
+
+        const drawScene = () => {
+          ctx.clearRect(0, 0, width, height);
+
+          const glow = ctx.createRadialGradient(width * 0.52, height * 0.3, 0, width * 0.52, height * 0.3, width * 0.75);
+          glow.addColorStop(0, 'rgba(148, 219, 255, 0.34)');
+          glow.addColorStop(0.28, 'rgba(121, 145, 255, 0.19)');
+          glow.addColorStop(0.62, 'rgba(147, 108, 255, 0.12)');
+          glow.addColorStop(1, 'rgba(6, 12, 18, 0)');
+          ctx.fillStyle = glow;
+          ctx.fillRect(0, 0, width, height);
+
+          particles.forEach((particle, index) => {
+            const dx = pointer.x - particle.x;
+            const dy = pointer.y - particle.y;
+            const distance = Math.hypot(dx, dy);
+            const sway = distance < 150 ? 0.12 : 0;
+
+            particle.x += particle.vx + (dx / (distance || 1)) * sway;
+            particle.y += particle.vy + (dy / (distance || 1)) * sway;
+
+            if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+            if (particle.y < 0 || particle.y > height) particle.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${particle.hue}, 100%, 78%, ${particle.alpha})`;
+            ctx.shadowColor = `hsla(${particle.hue}, 100%, 78%, 0.75)`;
+            ctx.shadowBlur = particle.r * 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            for (let j = index + 1; j < particles.length; j += 1) {
+              const other = particles[j];
+              const dx2 = particle.x - other.x;
+              const dy2 = particle.y - other.y;
+              const distance2 = Math.hypot(dx2, dy2);
+
+              if (distance2 < 120) {
+                const alpha = (1 - distance2 / 120) * 0.52;
+                ctx.beginPath();
+                ctx.moveTo(particle.x, particle.y);
+                ctx.lineTo(other.x, other.y);
+                ctx.strokeStyle = `rgba(170, 205, 255, ${alpha})`;
+                ctx.lineWidth = distance2 > 85 ? 0.8 : 1.1;
+                ctx.stroke();
+              }
+            }
+          });
+        };
+
+        const animate = () => {
+          if (!prefersReducedMotion) {
+            drawScene();
+            requestAnimationFrame(animate);
+          }
+        };
+
+        const reveal = () => {
+          document.querySelectorAll('.reveal').forEach((node) => {
+            if (node instanceof HTMLElement) {
+              if (node.dataset.revealReady === 'true') return;
+              const rect = node.getBoundingClientRect();
+              if (rect.top < window.innerHeight * 0.9) {
+                node.classList.add('is-visible');
+                node.dataset.revealReady = 'true';
+              }
+            }
+          });
+        };
+
+        window.addEventListener('pointermove', (event) => {
+          pointer.x = event.clientX;
+          pointer.y = event.clientY;
+        });
+        window.addEventListener('resize', resize);
+        window.addEventListener('scroll', reveal, { passive: true });
+
+        resize();
+        if (prefersReducedMotion) {
+          drawScene();
+          document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
+        } else {
+          requestAnimationFrame(animate);
+          reveal();
+        }
+      })();
+    </script>
+  </body>
+</html>

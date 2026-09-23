@@ -1,0 +1,24 @@
+---
+import type { Project } from '../content/site';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+interface Props { projects: Project[]; }
+const { projects } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const projectHref = (slug: string) => `${base}/projects/${slug}`;
+---
+<section class="projects-portfolio section-shell" aria-label="Selección de proyectos">
+  <div class="project-index">
+    {projects.map((project, index) => (
+      <article class:list={['project-feature', 'reveal', { 'project-feature--reverse': (index + 1) % 2 === 0 }]}>
+        <div class="project-feature__copy">
+          <h2><a href={projectHref(project.slug)}>{project.title}</a></h2>
+          <p>{project.description}</p>
+          <a class="project-feature__link" href={projectHref(project.slug)}>Descubrir <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="project-feature__video">
+          <YouTubeEmbed {...project} />
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

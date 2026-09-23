@@ -1,0 +1,110 @@
+---
+import type { SiteContent } from '../content/site';
+import SectionHeading from './SectionHeading.astro';
+interface Props { media: SiteContent['media']; section: SiteContent['sections']['media']; }
+const { media, section } = Astro.props;
+---
+<section class="media section-shell" id="media" aria-labelledby="media-title">
+  <SectionHeading id="media-title" eyebrow={section.eyebrow} title={section.title} />
+
+  <div class="media-shell">
+    <div class="media-panel media-panel--documents reveal">
+      <div class="panel-header">
+        <span class="panel-tag">Archive</span>
+        <span class="panel-id">01 / resources</span>
+      </div>
+      <div class="media-resources">
+        {media.documents.map((document) => document.url ? <a class="resource-card" href={document.url} target="_blank" rel="noreferrer"><span>{document.label}</span><span aria-hidden="true">↗</span><small>{document.description}</small></a> : <div class="resource-card is-pending"><span>{document.label}</span><span aria-hidden="true">—</span><small>{document.description}</small></div>)}
+      </div>
+    </div>
+
+    <div class="media-panel media-panel--images reveal">
+      <div class="panel-header">
+        <span class="panel-tag">Images</span>
+        <span class="panel-id">02 / gallery</span>
+      </div>
+      <div class="gallery" aria-label="Galería de imágenes">
+        {media.gallery.map((image, index) => (
+          <button class="gallery-item reveal" type="button" data-index={index} aria-label={`Abrir imagen ${index + 1}`}>
+            <img src={image.src} alt={image.alt} loading="lazy" />
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="media-lightbox" aria-hidden="true">
+    <button class="media-lightbox__close" type="button" aria-label="Cerrar vista previa">×</button>
+    <button class="media-lightbox__nav media-lightbox__nav--prev" type="button" aria-label="Anterior">←</button>
+    <img class="media-lightbox__image" src="" alt="" />
+    <button class="media-lightbox__nav media-lightbox__nav--next" type="button" aria-label="Siguiente">→</button>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const items = [...document.querySelectorAll('.gallery-item')];
+    const lightbox = document.querySelector('.media-lightbox');
+    const image = lightbox?.querySelector('.media-lightbox__image');
+    const closeButton = document.querySelector('.media-lightbox__close');
+    const prevButton = document.querySelector('.media-lightbox__nav--prev');
+    const nextButton = document.querySelector('.media-lightbox__nav--next');
+
+    if (!lightbox || !image || !closeButton || !prevButton || !nextButton || !items.length) return;
+
+    const images = items.map((item) => ({
+      src: item.querySelector('img')?.src,
+      alt: item.querySelector('img')?.alt || '',
+    }));
+
+    let index = 0;
+
+    const update = () => {
+      const current = images[index];
+      if (!current) return;
+      image.src = current.src;
+      image.alt = current.alt;
+    };
+
+    items.forEach((item, idx) => {
+      item.addEventListener('click', () => {
+        index = idx;
+        update();
+        lightbox.classList.add('is-open');
+        lightbox.setAttribute('aria-hidden', 'false');
+      });
+    });
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+    };
+
+    closeButton.addEventListener('click', closeLightbox);
+    prevButton.addEventListener('click', () => {
+      index = (index - 1 + images.length) % images.length;
+      update();
+    });
+    nextButton.addEventListener('click', () => {
+      index = (index + 1) % images.length;
+      update();
+    });
+
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') {
+        index = (index - 1 + images.length) % images.length;
+        update();
+      }
+      if (event.key === 'ArrowRight') {
+        index = (index + 1) % images.length;
+        update();
+      }
+    });
+  })();
+</script>

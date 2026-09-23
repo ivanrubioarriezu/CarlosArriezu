@@ -1,0 +1,11 @@
+---
+import Hero from '../components/Hero.astro';
+import BioSection from '../components/BioSection.astro';
+import PageLayout from '../components/PageLayout.astro';
+import { siteContent } from '../content/site';
+---
+
+<PageLayout title={siteContent.meta.title} description={siteContent.meta.description} artistName={siteContent.artist.name} navigation={siteContent.navigation} activeHref="/">
+  <Hero artist={siteContent.artist} />
+  <BioSection artist={siteContent.artist} section={siteContent.sections.bio} />
+</PageLayout>

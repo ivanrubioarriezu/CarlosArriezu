@@ -1,0 +1,8 @@
+---
+interface Props { eyebrow?: string; title: string; id: string; }
+const { title, id } = Astro.props;
+---
+<header class="section-heading">
+  <h2 id={id}>{title}</h2>
+  <span class="section-line" aria-hidden="true"></span>
+</header>

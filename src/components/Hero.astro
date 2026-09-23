@@ -1,0 +1,16 @@
+---
+import type { ArtistProfile } from '../content/site';
+interface Props { artist: ArtistProfile; }
+const { artist } = Astro.props;
+---
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <p class="eyebrow">{artist.descriptor}</p>
+    <h1 id="hero-title">{artist.name}</h1>
+    <p class="hero-introduction">{artist.introduction}</p>
+    <a class="text-link" href="/projects">Explorar proyectos <span aria-hidden="true">↓</span></a>
+  </div>
+  <figure class="hero-portrait reveal">
+    <img src={artist.heroImage} alt={artist.heroImageAlt} />
+  </figure>
+</section>

@@ -1,0 +1,10 @@
+---
+import type { Project } from '../content/site';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+interface Props { project: Project; number: number; }
+const { project, number } = Astro.props;
+---
+<article class="project-card reveal">
+  <div class="project-heading"><span class="project-number">0{number}</span><h3>{project.title}</h3></div>
+  <p>{project.description}</p><YouTubeEmbed {...project} />
+</article>

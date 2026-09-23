@@ -1,0 +1,23 @@
+---
+import type { SiteContent } from '../content/site';
+import SectionHeading from './SectionHeading.astro';
+interface Props { contact: SiteContent['contact']; section: SiteContent['sections']['contact']; }
+const { contact, section } = Astro.props;
+---
+<section class="contact section-shell" id="contact" aria-labelledby="contact-title">
+  <div class="contact__glow" aria-hidden="true"></div>
+  <SectionHeading id="contact-title" eyebrow={section.eyebrow} title={section.title} />
+  <div class="contact-grid"><figure class="contact-image reveal"><img src={contact.image} alt={contact.imageAlt} loading="lazy" /></figure>
+    <div class="contact-copy"><p>{contact.text}</p>
+      {contact.emailIsPlaceholder ? <span class="contact-email">{contact.email}</span> : <a class="contact-email" href={`mailto:${contact.email}`}>{contact.email}</a>}
+      <ul class="social-links" aria-label="Redes sociales">
+        {contact.links.map((link) => <li><a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`Visitar ${link.label} de Carlos Arriezu`}>
+          {link.label === 'Facebook' && <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="" />}
+          {link.label === 'Instagram' && <img src="https://cdn.simpleicons.org/instagram" alt="" />}
+          {link.label === 'Spotify' && <img src="https://cdn.simpleicons.org/spotify/1ED760" alt="" />}
+          {link.label === 'YouTube' && <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="" />}
+        </a></li>)}
+      </ul>
+    </div>
+  </div>
+</section>

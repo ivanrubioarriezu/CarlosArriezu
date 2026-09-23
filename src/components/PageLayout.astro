@@ -1,0 +1,22 @@
+---
+import type { NavigationItem } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteFooter from './SiteFooter.astro';
+import SiteHeader from './SiteHeader.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  artistName: string;
+  navigation: NavigationItem[];
+  activeHref: string;
+}
+
+const { title, description, artistName, navigation, activeHref } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <SiteHeader artistName={artistName} navigation={navigation} activeHref={activeHref} />
+  <main><slot /></main>
+  <SiteFooter artistName={artistName} />
+</BaseLayout>

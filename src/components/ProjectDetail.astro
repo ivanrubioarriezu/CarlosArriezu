@@ -1,0 +1,36 @@
+---
+import type { Project } from '../content/site';
+import YouTubeEmbed from './YouTubeEmbed.astro';
+interface Props { project: Project; previous?: Project; next?: Project; }
+const { project, previous, next } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const toProject = (slug: string) => `${base}/projects/${slug}`;
+const projectsHref = `${base}/projects`;
+---
+<article class="project-detail">
+  <a class="back-link" href={projectsHref}>← Todos los proyectos</a>
+  <header class="project-detail__hero">
+    <h1>{project.title}</h1>
+  </header>
+
+  <section class="project-detail__body" aria-label={`Vídeo de ${project.title}`}>
+    <div class="project-detail__media"><YouTubeEmbed {...project} /></div>
+
+    {project.description && (
+      <div class="project-detail__intro">
+        <p>{project.description}</p>
+      </div>
+    )}
+
+    {project.details && project.details.length > 0 && (
+      <div class="project-detail__notes">
+        {project.details.map((detail) => <p>{detail}</p>)}
+      </div>
+    )}
+  </section>
+
+  <nav class="project-pagination" aria-label="Navegación entre proyectos">
+    {previous ? <a href={toProject(previous.slug)}><small>Anterior</small><span>← {previous.title}</span></a> : <span></span>}
+    {next ? <a href={toProject(next.slug)}><small>Siguiente</small><span>{next.title} →</span></a> : <span></span>}
+  </nav>
+</article>
