@@ -23,4 +23,4 @@ public/
 
 ## GitHub Pages
 
-The deployment workflow runs on pushes to `main`. For a standard project Pages URL, `astro.config.mjs` derives its base path from the repository name during GitHub Actions builds. For a custom domain, provide `SITE_URL` and `BASE_PATH=/` as build environment variables and add `public/CNAME` when the domain is known.
+The deployment workflow runs on pushes to `main`. The site is served from the custom domain `www.carlosarriezu.com`, so the Astro base path is `/` and `public/CNAME` keeps the GitHub Pages domain mapping in the generated site.
