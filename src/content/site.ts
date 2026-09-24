@@ -192,7 +192,7 @@ export const siteContent: SiteContent = {
   contact: {
     title: 'Contacto', text: 'Estoy abierto a nuevas propuestas, colaboraciones y proyectos que conecten la música con diferentes disciplinas y formas de expresión.\n\nSi tienes una idea, un proyecto en mente o simplemente quieres explorar una posible colaboración, estaré encantado de escucharte. Hablemos y veamos juntos cómo podemos convertirla en una experiencia única.',
     image: mediaImage('carlos8.jpeg'), imageAlt: 'Retrato del artista',
-    email: 'carlosarriezu.music@gmail.com', emailIsPlaceholder: false,
+    email: 'music@carlosarriezu.com', emailIsPlaceholder: false,
     links: [
       { label: 'Facebook', url: 'https://www.facebook.com/carlos.arriezuvera' },
       { label: 'Instagram', url: 'https://www.instagram.com/arriezuvera/?hl=en' },
