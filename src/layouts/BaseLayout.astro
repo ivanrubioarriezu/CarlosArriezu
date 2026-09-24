@@ -26,17 +26,23 @@ const { description, title } = Astro.props;
     <slot />
     <script is:inline>
       (() => {
-        const canvas = document.getElementById('site-background');
-        if (!canvas) return;
+        let cleanup = () => {};
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        const initializeBackground = () => {
+          cleanup();
 
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let particles = [];
-        let width = 0;
-        let height = 0;
-        let pointer = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.5 };
+          const canvas = document.getElementById('site-background');
+          if (!canvas) return;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+
+          const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          let animationFrame;
+          let particles = [];
+          let width = 0;
+          let height = 0;
+          let pointer = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.5 };
 
         const resize = () => {
           width = window.innerWidth;
@@ -111,12 +117,12 @@ const { description, title } = Astro.props;
           });
         };
 
-        const animate = () => {
-          if (!prefersReducedMotion) {
-            drawScene();
-            requestAnimationFrame(animate);
-          }
-        };
+          const animate = () => {
+            if (!prefersReducedMotion) {
+              drawScene();
+              animationFrame = requestAnimationFrame(animate);
+            }
+          };
 
         const reveal = () => {
           document.querySelectorAll('.reveal').forEach((node) => {
@@ -131,21 +137,34 @@ const { description, title } = Astro.props;
           });
         };
 
-        window.addEventListener('pointermove', (event) => {
+          const handlePointerMove = (event) => {
           pointer.x = event.clientX;
           pointer.y = event.clientY;
-        });
-        window.addEventListener('resize', resize);
-        window.addEventListener('scroll', reveal, { passive: true });
+          };
 
-        resize();
-        if (prefersReducedMotion) {
-          drawScene();
-          document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
-        } else {
-          requestAnimationFrame(animate);
-          reveal();
-        }
+          window.addEventListener('pointermove', handlePointerMove);
+          window.addEventListener('resize', resize);
+          window.addEventListener('scroll', reveal, { passive: true });
+
+          resize();
+          if (prefersReducedMotion) {
+            drawScene();
+            document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
+          } else {
+            animationFrame = requestAnimationFrame(animate);
+            reveal();
+          }
+
+          cleanup = () => {
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('resize', resize);
+            window.removeEventListener('scroll', reveal);
+          };
+        };
+
+        document.addEventListener('astro:page-load', initializeBackground);
+        initializeBackground();
       })();
     </script>
   </body>
