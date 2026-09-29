@@ -1,54 +1,78 @@
 ---
 import type { SiteContent } from '../content/site';
-import SectionHeading from './SectionHeading.astro';
 interface Props { media: SiteContent['media']; section: SiteContent['sections']['media']; }
 const { media, section } = Astro.props;
+const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos22.jpg')) ?? media.gallery[0];
 ---
-<section class="media section-shell" id="media" aria-labelledby="media-title">
-  <div class="media__cursor-glow" aria-hidden="true"></div>
-  <SectionHeading id="media-title" eyebrow={section.eyebrow} title={section.title} />
-
-  <div class="media-documents" aria-label="Documentos de prensa">
-    {media.documents.map((document) => (
-      <article class="resource-card reveal">
-        <span class:list={['resource-card__icon', { 'resource-card__icon--press': document.label === 'Press kit' }]} aria-hidden="true"></span>
-        <div class="resource-card__body">
-          <h3>{document.label}</h3>
-          <p>{document.description}</p>
-        </div>
-        <div class="resource-card__actions">
-          {document.url ? <button class="resource-card__view" type="button" data-pdf={document.url}>View PDF</button> : <span class="resource-card__pending">Pending</span>}
-          {document.url && <a class="resource-card__download" href={document.url} download>Download</a>}
-        </div>
-      </article>
-    ))}
-  </div>
-
-  <div class="media-gallery reveal">
-    <div class="media-gallery__header">
-      <span class="panel-tag">Images</span>
-      <span class="panel-id">Gallery / {media.gallery.length} files</span>
+<section class="media" id="media" aria-labelledby="media-title">
+  <header class="media-masthead">
+    <figure class="media-masthead__visual">
+      <img src={mastheadImage.src} alt={mastheadImage.alt} fetchpriority="high" />
+      <figcaption>Archivo visual <span>/</span> Carlos Arriezu</figcaption>
+    </figure>
+    <div class="media-masthead__score" aria-hidden="true"></div>
+    <div class="media-masthead__copy">
+      <p class="media-eyebrow">{section.eyebrow || 'Piano · composición · escena'}</p>
+      <h1 id="media-title">{section.title}</h1>
+      <p class="media-masthead__description">Fotografías y material profesional de Carlos Arriezu.</p>
+      <a class="media-masthead__link" href="#media-gallery">Explorar el archivo <span aria-hidden="true">↓</span></a>
     </div>
-    <div class="gallery" aria-label="Galería de imágenes">
-      {media.gallery.map((image, index) => (
-        <button class="gallery-item reveal" type="button" data-index={index} aria-label={`Abrir imagen ${index + 1}`}>
-          <img src={image.src} alt={image.alt} loading="lazy" />
-        </button>
-      ))}
-    </div>
+  </header>
+
+  <div class="media__content">
+    <section class="media-documents" aria-labelledby="media-documents-title">
+      <header class="media-section-heading">
+        <p class="media-eyebrow">01 <span>/</span> Prensa</p>
+        <h2 id="media-documents-title">Material profesional</h2>
+      </header>
+      <div class="media-documents__list">
+        {media.documents.map((document, index) => (
+          <article class="resource-card">
+            <span class="resource-card__number">0{index + 1}</span>
+            <div class="resource-card__body">
+              <h3>{document.label}</h3>
+              <p>{document.description}</p>
+            </div>
+            <div class="resource-card__actions">
+              {document.url ? <a class="resource-card__view" href={document.url} target="_blank" rel="noopener noreferrer">Ver PDF</a> : <span class="resource-card__pending">Pendiente</span>}
+              {document.url && <a class="resource-card__download" href={document.url} download>Descargar</a>}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="media-gallery" id="media-gallery" aria-labelledby="media-gallery-title">
+      <div class="media-gallery__header">
+        <div class="media-gallery__heading">
+          <p class="media-eyebrow">02 <span>/</span> Archivo visual</p>
+          <h2 id="media-gallery-title">Fotografías</h2>
+        </div>
+        <div class="media-gallery__tools">
+          <div class="media-gallery__view-modes" role="group" aria-label="Modo de visualización">
+            <button class="media-gallery__view-toggle" type="button" data-gallery-mode="masonry" aria-pressed="true">Mosaico</button>
+            <button class="media-gallery__view-toggle" type="button" data-gallery-mode="grid" aria-pressed="false">Cuadrícula</button>
+          </div>
+          <span class="panel-id">{String(media.gallery.length).padStart(2, '0')} imágenes</span>
+        </div>
+      </div>
+      <div class="gallery" aria-label="Galería de imágenes">
+        {media.gallery.map((image, index) => (
+          <button class="gallery-item reveal" type="button" data-index={index} aria-label={`Abrir imagen ${index + 1}`}>
+            <img src={image.src} alt={image.alt} loading="lazy" />
+          </button>
+        ))}
+      </div>
+    </section>
   </div>
 
-  <div class="media-pdf-viewer" aria-hidden="true">
-    <button class="media-pdf-viewer__close" type="button" aria-label="Cerrar PDF">×</button>
-    <div class="media-pdf-viewer__frame"><iframe title="Vista previa del documento PDF" src=""></iframe></div>
-  </div>
-
-  <div class="media-lightbox" aria-hidden="true">
+  <div class="media-lightbox" role="dialog" aria-modal="true" aria-label="Galería de imágenes" aria-hidden="true">
     <button class="media-lightbox__close" type="button" aria-label="Cerrar vista previa">×</button>
     <button class="media-lightbox__nav media-lightbox__nav--prev" type="button" aria-label="Anterior">←</button>
     <div class="media-lightbox__stage">
       <img class="media-lightbox__image" src="" alt="" />
-      <span class="media-lightbox__counter">01 / 14</span>
+      <span class="media-lightbox__counter">01 / {String(media.gallery.length).padStart(2, '0')}</span>
+      <span class="media-lightbox__caption" aria-live="polite"></span>
     </div>
     <button class="media-lightbox__nav media-lightbox__nav--next" type="button" aria-label="Siguiente">→</button>
     <div class="media-lightbox__tools">
@@ -62,8 +86,11 @@ const { media, section } = Astro.props;
 <script is:inline>
   (() => {
     const items = [...document.querySelectorAll('.gallery-item')];
+    const gallery = document.querySelector('.gallery');
+    const galleryModeButtons = [...document.querySelectorAll('[data-gallery-mode]')];
     const lightbox = document.querySelector('.media-lightbox');
     const image = lightbox?.querySelector('.media-lightbox__image');
+    const caption = lightbox?.querySelector('.media-lightbox__caption');
     const closeButton = document.querySelector('.media-lightbox__close');
     const prevButton = document.querySelector('.media-lightbox__nav--prev');
     const nextButton = document.querySelector('.media-lightbox__nav--next');
@@ -71,12 +98,15 @@ const { media, section } = Astro.props;
     const thumbs = lightbox?.querySelector('.media-lightbox__thumbs');
     const zoomIn = lightbox?.querySelector('.media-lightbox__zoom--in');
     const zoomOut = lightbox?.querySelector('.media-lightbox__zoom--out');
-    const pdfViewer = document.querySelector('.media-pdf-viewer');
-    const pdfFrame = pdfViewer?.querySelector('iframe');
-    const pdfClose = pdfViewer?.querySelector('.media-pdf-viewer__close');
-    const pdfButtons = [...document.querySelectorAll('[data-pdf]')];
-
     if (!lightbox || !image || !closeButton || !prevButton || !nextButton || !items.length) return;
+
+    galleryModeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const isGrid = button.dataset.galleryMode === 'grid';
+        gallery?.classList.toggle('gallery--grid', isGrid);
+        galleryModeButtons.forEach((modeButton) => modeButton.setAttribute('aria-pressed', String(modeButton === button)));
+      });
+    });
 
     const images = items.map((item) => ({
       src: item.querySelector('img')?.src,
@@ -85,6 +115,8 @@ const { media, section } = Astro.props;
 
     let index = 0;
     let scale = 1;
+    let lastFocusedItem;
+    let touchStartX = null;
 
     images.forEach((current, idx) => {
       const thumbnail = document.createElement('button');
@@ -104,24 +136,29 @@ const { media, section } = Astro.props;
       if (!current) return;
       image.src = current.src;
       image.alt = current.alt;
+      if (caption) caption.textContent = current.alt;
       image.style.transform = `scale(${scale})`;
       if (counter) counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(images.length).padStart(2, '0')}`;
       thumbs?.querySelectorAll('.media-lightbox__thumb').forEach((thumb, thumbIndex) => thumb.classList.toggle('is-active', thumbIndex === index));
+      thumbs?.querySelector('.is-active')?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
     };
 
     items.forEach((item, idx) => {
       item.addEventListener('click', () => {
+        lastFocusedItem = item;
         index = idx;
         scale = 1;
         update();
         lightbox.classList.add('is-open');
         lightbox.setAttribute('aria-hidden', 'false');
+        closeButton.focus();
       });
     });
 
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
       lightbox.setAttribute('aria-hidden', 'true');
+      lastFocusedItem?.focus();
     };
 
     closeButton.addEventListener('click', closeLightbox);
@@ -144,6 +181,18 @@ const { media, section } = Astro.props;
     window.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
       if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'Tab') {
+        const focusable = [...lightbox.querySelectorAll('button:not(:disabled)')];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
       if (event.key === 'ArrowLeft') {
         index = (index - 1 + images.length) % images.length;
         scale = 1;
@@ -156,30 +205,19 @@ const { media, section } = Astro.props;
       }
     });
 
-    pdfButtons.forEach((button) => button.addEventListener('click', () => {
-      if (!pdfViewer || !pdfFrame) return;
-      pdfFrame.src = `${button.dataset.pdf}#view=FitH`;
-      pdfViewer.classList.add('is-open');
-      pdfViewer.setAttribute('aria-hidden', 'false');
-    }));
+    lightbox.addEventListener('touchstart', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('.media-lightbox__stage')) return;
+      touchStartX = event.changedTouches[0]?.clientX ?? null;
+    }, { passive: true });
+    lightbox.addEventListener('touchend', (event) => {
+      if (touchStartX === null) return;
+      const distance = event.changedTouches[0].clientX - touchStartX;
+      touchStartX = null;
+      if (Math.abs(distance) < 48) return;
+      index = (index + (distance < 0 ? 1 : -1) + images.length) % images.length;
+      scale = 1;
+      update();
+    }, { passive: true });
 
-    const closePdf = () => {
-      if (!pdfViewer || !pdfFrame) return;
-      pdfViewer.classList.remove('is-open');
-      pdfViewer.setAttribute('aria-hidden', 'true');
-      pdfFrame.src = '';
-    };
-    pdfClose?.addEventListener('click', closePdf);
-    pdfViewer?.addEventListener('click', (event) => { if (event.target === pdfViewer) closePdf(); });
-    window.addEventListener('keydown', (event) => { if (event.key === 'Escape') closePdf(); });
-
-    const mediaSection = document.querySelector('.media');
-    const cursorGlow = mediaSection?.querySelector('.media__cursor-glow');
-    mediaSection?.addEventListener('pointermove', (event) => {
-      if (!cursorGlow) return;
-      const bounds = mediaSection.getBoundingClientRect();
-      cursorGlow.style.setProperty('--glow-x', `${event.clientX - bounds.left}px`);
-      cursorGlow.style.setProperty('--glow-y', `${event.clientY - bounds.top}px`);
-    });
   })();
 </script>

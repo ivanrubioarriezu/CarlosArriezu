@@ -42,7 +42,6 @@ const { description, title } = Astro.props;
           let particles = [];
           let width = 0;
           let height = 0;
-          let pointer = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.5 };
 
         const resize = () => {
           width = window.innerWidth;
@@ -79,13 +78,8 @@ const { description, title } = Astro.props;
           ctx.fillRect(0, 0, width, height);
 
           particles.forEach((particle, index) => {
-            const dx = pointer.x - particle.x;
-            const dy = pointer.y - particle.y;
-            const distance = Math.hypot(dx, dy);
-            const sway = distance < 150 ? 0.12 : 0;
-
-            particle.x += particle.vx + (dx / (distance || 1)) * sway;
-            particle.y += particle.vy + (dy / (distance || 1)) * sway;
+            particle.x += particle.vx;
+            particle.y += particle.vy;
 
             if (particle.x < 0 || particle.x > width) particle.vx *= -1;
             if (particle.y < 0 || particle.y > height) particle.vy *= -1;
@@ -137,12 +131,6 @@ const { description, title } = Astro.props;
           });
         };
 
-          const handlePointerMove = (event) => {
-          pointer.x = event.clientX;
-          pointer.y = event.clientY;
-          };
-
-          window.addEventListener('pointermove', handlePointerMove);
           window.addEventListener('resize', resize);
           window.addEventListener('scroll', reveal, { passive: true });
 
@@ -157,7 +145,6 @@ const { description, title } = Astro.props;
 
           cleanup = () => {
             if (animationFrame) cancelAnimationFrame(animationFrame);
-            window.removeEventListener('pointermove', handlePointerMove);
             window.removeEventListener('resize', resize);
             window.removeEventListener('scroll', reveal);
           };

@@ -2,7 +2,7 @@ export type SectionId = 'bio' | 'projects' | 'media' | 'contact';
 const publicBase = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`;
-const mediaImage = (file: string) => `${publicBase}media/images/${file}`;
+const mediaImage = (file: string) => `${publicBase}media/images/web/${file.replace(/\.[^.]+$/, '.jpg')}`;
 
 export interface NavigationItem { label: string; href: string; }
 export interface ArtistProfile {
@@ -111,7 +111,7 @@ export const siteContent: SiteContent = {
       ],
       details: [
         'Os propongo un viaje a través de la cultura vasco navarra y pirenaica, siempre desde mi particular prisma. Está compuesto por diecinueve melodías íntimas que hablan de Naturaleza, Mitología, Ancestros y Tradiciones, trasladando al oyente hacia un lugar mágico y atemporal, e invitándole a conectar con sus emociones más profundas.',
-        'Doble álbum disponible en formato usb, dentro de un bonito estuche de madera grabado. Para más información acerca del envío, por favor contacta con carlosarriezu.music@gmail.com.',
+        'Doble álbum disponible en formato usb, dentro de un bonito estuche de madera grabado. Para más información acerca del envío, por favor contacta con music@carlosarriezu.com.',
       ],
     },
     {
@@ -176,6 +176,7 @@ export const siteContent: SiteContent = {
       { src: mediaImage('carlos1.jpeg'), alt: 'Retrato del artista encima del piano' },
       { src: mediaImage('carlos2.png'), alt: 'Retrato del artista junto al piano' },
       { src: mediaImage('carlos3.png'), alt: 'Retrato del artista junto al piano' },
+      { src: mediaImage('carlos4.tif'), alt: 'Fotografía de Carlos Arriezu' },
       { src: mediaImage('carlos5.png'), alt: 'Retrato del artista junto al piano' },
       { src: mediaImage('carlos6.png'), alt: 'Fotografía del artista encima de un piano' },
       { src: mediaImage('carlos7.jpeg'), alt: 'Retrato del artista junto al piano' },
@@ -187,6 +188,17 @@ export const siteContent: SiteContent = {
       { src: mediaImage('carlos13.jpeg'), alt: 'Fotografía de una actuación con Patxi Urchegui' },
       { src: mediaImage('carlos14.png'), alt: 'Retrato del artista dirigiendo un musical' },
       { src: mediaImage('carlos15.png'), alt: 'Retrato del artista tocando el piano' },
+      { src: mediaImage('carlos16.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos17.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos18.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos19.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos20.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos21.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos22.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos23.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos24.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos25.tif'), alt: 'Fotografía de Carlos Arriezu' },
+      { src: mediaImage('carlos26.jpg'), alt: 'Fotografía de Carlos Arriezu' },
     ],
   },
   contact: {
