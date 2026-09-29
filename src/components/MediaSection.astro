@@ -83,40 +83,51 @@ const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos2
   </div>
 </section>
 
-<script is:inline>
-  (() => {
-    const items = [...document.querySelectorAll('.gallery-item')];
-    const gallery = document.querySelector('.gallery');
-    const galleryModeButtons = [...document.querySelectorAll('[data-gallery-mode]')];
-    const lightbox = document.querySelector('.media-lightbox');
-    const image = lightbox?.querySelector('.media-lightbox__image');
-    const caption = lightbox?.querySelector('.media-lightbox__caption');
-    const closeButton = document.querySelector('.media-lightbox__close');
-    const prevButton = document.querySelector('.media-lightbox__nav--prev');
-    const nextButton = document.querySelector('.media-lightbox__nav--next');
-    const counter = lightbox?.querySelector('.media-lightbox__counter');
-    const thumbs = lightbox?.querySelector('.media-lightbox__thumbs');
-    const zoomIn = lightbox?.querySelector('.media-lightbox__zoom--in');
-    const zoomOut = lightbox?.querySelector('.media-lightbox__zoom--out');
+<script>
+  let activeController: AbortController | undefined;
+  let activeSection: HTMLElement | null = null;
+
+  const initializeMedia = () => {
+    const section = document.querySelector<HTMLElement>('.media');
+    if (!section || section === activeSection) return;
+    activeController?.abort();
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    const items = [...document.querySelectorAll<HTMLButtonElement>('.gallery-item')];
+    const gallery = document.querySelector<HTMLElement>('.gallery');
+    const galleryModeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-gallery-mode]')];
+    const lightbox = document.querySelector<HTMLDivElement>('.media-lightbox');
+    const image = lightbox?.querySelector<HTMLImageElement>('.media-lightbox__image');
+    const caption = lightbox?.querySelector<HTMLElement>('.media-lightbox__caption');
+    const closeButton = document.querySelector<HTMLButtonElement>('.media-lightbox__close');
+    const prevButton = document.querySelector<HTMLButtonElement>('.media-lightbox__nav--prev');
+    const nextButton = document.querySelector<HTMLButtonElement>('.media-lightbox__nav--next');
+    const counter = lightbox?.querySelector<HTMLElement>('.media-lightbox__counter');
+    const thumbs = lightbox?.querySelector<HTMLElement>('.media-lightbox__thumbs');
+    const zoomIn = lightbox?.querySelector<HTMLButtonElement>('.media-lightbox__zoom--in');
+    const zoomOut = lightbox?.querySelector<HTMLButtonElement>('.media-lightbox__zoom--out');
     if (!lightbox || !image || !closeButton || !prevButton || !nextButton || !items.length) return;
+    activeController = controller;
+    activeSection = section;
 
     galleryModeButtons.forEach((button) => {
       button.addEventListener('click', () => {
         const isGrid = button.dataset.galleryMode === 'grid';
         gallery?.classList.toggle('gallery--grid', isGrid);
         galleryModeButtons.forEach((modeButton) => modeButton.setAttribute('aria-pressed', String(modeButton === button)));
-      });
+      }, { signal });
     });
 
     const images = items.map((item) => ({
-      src: item.querySelector('img')?.src,
+      src: item.querySelector('img')?.src ?? '',
       alt: item.querySelector('img')?.alt || '',
     }));
 
     let index = 0;
     let scale = 1;
-    let lastFocusedItem;
-    let touchStartX = null;
+    let lastFocusedItem: HTMLButtonElement | undefined;
+    let touchStartX: number | null = null;
 
     images.forEach((current, idx) => {
       const thumbnail = document.createElement('button');
@@ -127,14 +138,14 @@ const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos2
       thumbnail.addEventListener('click', () => {
         index = idx;
         update();
-      });
+      }, { signal });
       thumbs?.appendChild(thumbnail);
     });
 
     const update = () => {
       const current = images[index];
       if (!current) return;
-      image.src = current.src;
+      image.src = current.src ?? '';
       image.alt = current.alt;
       if (caption) caption.textContent = current.alt;
       image.style.transform = `scale(${scale})`;
@@ -152,7 +163,7 @@ const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos2
         lightbox.classList.add('is-open');
         lightbox.setAttribute('aria-hidden', 'false');
         closeButton.focus();
-      });
+      }, { signal });
     });
 
     const closeLightbox = () => {
@@ -161,28 +172,28 @@ const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos2
       lastFocusedItem?.focus();
     };
 
-    closeButton.addEventListener('click', closeLightbox);
+    closeButton.addEventListener('click', closeLightbox, { signal });
     prevButton.addEventListener('click', () => {
       index = (index - 1 + images.length) % images.length;
       update();
-    });
+    }, { signal });
     nextButton.addEventListener('click', () => {
       index = (index + 1) % images.length;
       scale = 1;
       update();
-    });
-    zoomIn?.addEventListener('click', () => { scale = Math.min(scale + .2, 2.4); update(); });
-    zoomOut?.addEventListener('click', () => { scale = Math.max(scale - .2, 1); update(); });
+    }, { signal });
+    zoomIn?.addEventListener('click', () => { scale = Math.min(scale + .2, 2.4); update(); }, { signal });
+    zoomOut?.addEventListener('click', () => { scale = Math.max(scale - .2, 1); update(); }, { signal });
 
     lightbox.addEventListener('click', (event) => {
       if (event.target === lightbox) closeLightbox();
-    });
+    }, { signal });
 
     window.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
       if (event.key === 'Escape') closeLightbox();
       if (event.key === 'Tab') {
-        const focusable = [...lightbox.querySelectorAll('button:not(:disabled)')];
+        const focusable = [...lightbox.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
         if (event.shiftKey && document.activeElement === first) {
@@ -203,12 +214,12 @@ const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos2
         scale = 1;
         update();
       }
-    });
+    }, { signal });
 
     lightbox.addEventListener('touchstart', (event) => {
       if (!(event.target instanceof Element) || !event.target.closest('.media-lightbox__stage')) return;
       touchStartX = event.changedTouches[0]?.clientX ?? null;
-    }, { passive: true });
+    }, { passive: true, signal });
     lightbox.addEventListener('touchend', (event) => {
       if (touchStartX === null) return;
       const distance = event.changedTouches[0].clientX - touchStartX;
@@ -217,7 +228,10 @@ const mastheadImage = media.gallery.find((image) => image.src.endsWith('/carlos2
       index = (index + (distance < 0 ? 1 : -1) + images.length) % images.length;
       scale = 1;
       update();
-    }, { passive: true });
+    }, { passive: true, signal });
 
-  })();
+  };
+
+  document.addEventListener('astro:page-load', initializeMedia);
+  initializeMedia();
 </script>
