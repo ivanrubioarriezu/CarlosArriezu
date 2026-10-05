@@ -66,14 +66,20 @@ const { contact, section } = Astro.props;
           if (!AudioContextClass) return null;
           audioContext = new AudioContextClass();
         }
-        if (audioContext.state === 'suspended') audioContext.resume();
         return audioContext;
       };
 
-      const playNote = (key) => {
+      const playNote = async (key) => {
         const note = key.dataset.note;
         const context = getAudioContext();
         if (!note || !context) return;
+        if (context.state === 'suspended') {
+          try {
+            await context.resume();
+          } catch {
+            return;
+          }
+        }
         const oscillator = context.createOscillator();
         const gain = context.createGain();
         oscillator.type = 'sine';
@@ -96,15 +102,22 @@ const { contact, section } = Astro.props;
       };
 
       const handlers = keys.map((key) => {
+        let pointerTriggered = false;
         const onPointerDown = (event) => {
-          if (event.button !== 0) return;
-          playNote(key);
+          pointerTriggered = false;
+          if (event.pointerType !== 'mouse' || event.button !== 0) return;
+          pointerTriggered = true;
+          void playNote(key);
         };
         const onPointerEnter = (event) => {
-          if (event.pointerType === 'mouse' && (event.buttons & 1) === 1) playNote(key);
+          if (event.pointerType === 'mouse' && (event.buttons & 1) === 1) void playNote(key);
         };
-        const onClick = (event) => {
-          if (event.detail === 0) playNote(key);
+        const onClick = () => {
+          if (pointerTriggered) {
+            pointerTriggered = false;
+            return;
+          }
+          void playNote(key);
         };
         key.addEventListener('pointerdown', onPointerDown);
         key.addEventListener('pointerenter', onPointerEnter);
