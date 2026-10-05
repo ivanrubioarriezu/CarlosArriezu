@@ -220,6 +220,7 @@ button { font: inherit; }
 
 .contact {
   background: linear-gradient(135deg, rgba(185, 216, 255, 0.32), rgba(122, 162, 255, 0.2) 35%, rgba(130, 238, 228, 0.22) 60%, rgba(11, 24, 39, 0.24));
+  overflow: hidden;
   padding-block: clamp(3.25rem, 6vw, 6rem);
   position: relative;
 }
@@ -511,4 +512,8 @@ button { font: inherit; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
   .reveal, .reveal.is-visible { opacity: 1; transform: none; }
   .hero-portrait:hover img, .page-intro__image:hover img, .project-feature__video:hover .youtube-embed, .social-links a:hover { transform: none; }
+}
+
+@media (max-width: 720px) {
+  .contact::after { animation: none; }
 }
