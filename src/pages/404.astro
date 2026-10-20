@@ -1,0 +1,112 @@
+---
+import PageLayout from '../components/PageLayout.astro';
+import { siteContent } from '../content/site';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<PageLayout
+  title={`404 — ${siteContent.artist.name}`}
+  description="La extensión que buscas no existe. Vuelve a la web de Carlos Arriezu."
+  artistName={siteContent.artist.name}
+  navigation={siteContent.navigation}
+  activeHref=""
+>
+  <section class="not-found" aria-labelledby="not-found-title">
+    <div class="not-found__content">
+      <span class="not-found__code" aria-hidden="true">404</span>
+      <h1 id="not-found-title">Esta extensión no existe</h1>
+      <p>La página que buscas no está disponible o la dirección ha cambiado.</p>
+      <a class="text-link" href={`${base || ''}/`}>Volver al inicio <span aria-hidden="true">←</span></a>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .not-found {
+    position: relative;
+    display: grid;
+    min-height: min(76vh, 720px);
+    overflow: hidden;
+    place-items: center;
+    padding: clamp(4rem, 10vw, 8rem) 1.5rem;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(122, 223, 233, 0.15), transparent 34%),
+      radial-gradient(ellipse at 78% 82%, rgba(167, 139, 255, 0.12), transparent 34%),
+      var(--night);
+    color: var(--paper);
+    text-align: center;
+  }
+
+  .not-found::before,
+  .not-found::after {
+    position: absolute;
+    border: 1px solid rgba(122, 223, 233, 0.18);
+    border-radius: 50%;
+    content: '';
+    pointer-events: none;
+  }
+
+  .not-found::before {
+    top: -15rem;
+    right: -10rem;
+    width: 34rem;
+    aspect-ratio: 1;
+  }
+
+  .not-found::after {
+    bottom: -22rem;
+    left: -14rem;
+    width: 44rem;
+    aspect-ratio: 1;
+    border-color: rgba(255, 143, 122, 0.2);
+  }
+
+  .not-found__content {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 42rem);
+  }
+
+  .not-found__code {
+    display: block;
+    margin: 0 0 1.6rem;
+    color: var(--paper);
+    font-family: var(--serif);
+    font-size: clamp(8rem, 27vw, 16rem);
+    font-weight: 400;
+    letter-spacing: -0.075em;
+    line-height: 0.72;
+  }
+
+  .not-found h1 {
+    margin: 2.4rem 0 0.9rem;
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+
+  .not-found p {
+    max-width: 34rem;
+    margin: 0 auto;
+    color: var(--mist);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .not-found .text-link {
+    margin-top: 2.3rem;
+  }
+
+  @media (max-width: 480px) {
+    .not-found {
+      min-height: 68vh;
+    }
+
+    .not-found__code {
+      font-size: clamp(7rem, 35vw, 10rem);
+    }
+  }
+</style>
